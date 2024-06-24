@@ -1,12 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.EventSystems;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class BirdScript : MonoBehaviour
 {
+    
     [SerializeField]
     private TMPro.TextMeshProUGUI passedLabel;
     [SerializeField]
@@ -16,8 +21,9 @@ public class BirdScript : MonoBehaviour
  
     private int score;
     private Rigidbody2D rigidBody;
-    private Rigidbody2D rigidBeak;
     private bool needClear;
+    private int lifeCount;
+    private GameObject lifeTemp;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +31,7 @@ public class BirdScript : MonoBehaviour
         rigidBody = GetComponent<Rigidbody2D>();
         score = 0;
         needClear = false;
+        lifeCount = 3;
         HideAlert();
        
     }
@@ -35,6 +42,7 @@ public class BirdScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             rigidBody.AddForce(new Vector2(0, 300) * Time.timeScale);
+           
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -47,20 +55,45 @@ public class BirdScript : MonoBehaviour
                 ShowAlert("Paused!");
             }
         }
-       
-
-       
-       
     }
 
     private void OnTriggerEnter2D (Collider2D other)
     {
+        
         if (other.gameObject.CompareTag("Pipe"))
         {
             Debug.Log("Collision!! " + other.gameObject.name);
             needClear = true;
-            ShowAlert("OOOPS!");
 
+            string lifeName = $"Life{lifeCount}";
+            if (lifeCount > 1)
+            {
+                GameObject life = GameObject.FindGameObjectWithTag(lifeName);
+                lifeTemp = life;
+                lifeTemp.SetActive(false);
+                ShowAlert("OOOPS!");
+                lifeCount--;
+
+            }
+            else if (lifeCount == 1)
+            {
+                GameObject life = GameObject.FindGameObjectWithTag(lifeName);
+                 ShowAlert("Game Over");
+            }
+        }
+
+        if (other.gameObject.CompareTag("Balloon"))
+        {
+            
+            if (lifeCount >= 1 && lifeCount < 3)
+            {
+                lifeTemp.SetActive(true);
+                lifeCount++;   
+            }
+               
+
+            Debug.Log("Get Life " + other.gameObject.name + "---"+lifeCount);
+            GameObject.Destroy(other.gameObject);
         }
       
     }
@@ -79,11 +112,16 @@ public class BirdScript : MonoBehaviour
         alertLabel.text = message;
         Time.timeScale = 0f;
         EventSystem.current.SetSelectedGameObject(null);
-
     }
     public void HideAlert()
     {
+        
         alert.SetActive(false);
+        if(alertLabel.text == "Game Over")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            return;
+        }
         Time.timeScale = 1f;
         if (needClear)
         {

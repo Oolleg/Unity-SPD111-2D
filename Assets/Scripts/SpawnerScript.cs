@@ -30,7 +30,7 @@ public class SpawnerScript : MonoBehaviour
     private void SpawnPipe()
     {
         var pipe = GameObject.Instantiate(pipeFrefab);
-        pipe.transform.position = this.transform.position + 
-            Vector3.up * Random.Range(-1f, 1f);
+        pipe.transform.position = this.transform.position + Vector3.up * Random.Range(-1f, 1f);
+
     }
 }

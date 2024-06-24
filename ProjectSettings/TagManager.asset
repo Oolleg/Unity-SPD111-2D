@@ -6,6 +6,11 @@ TagManager:
   tags:
   - Pipe
   - Pass
+  - Life
+  - Balloon
+  - Life2
+  - Life3
+  - Life1
   layers:
   - Default
   - TransparentFX
